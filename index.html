@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Solar v1.0</title>
+    <style>
+      body, html {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden;
+      }
+      #container {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+      #controls {
+        padding: 10px;
+        background: #f0f0f0;
+        z-index: 1;
+      }
+      #bg {
+        flex-grow: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container">
+      <div id="controls">
+        <input type="date" id="dateInput">
+        <input type="time" id="timeInput">
+        <button id="updateSunPosition">Update Sun Position</button>
+      </div>
+      <canvas id="bg"></canvas>
+    </div>
+    
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
