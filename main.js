@@ -20,7 +20,7 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 camera.position.setZ(30);
 
-const light = new THREE.DirectionalLight(0xffffff, 7);
+const light = new THREE.DirectionalLight(0xffffff, 5);
 light.position.set(-1500, 200, 100); 
 light.castShadow = true; 
 
@@ -38,7 +38,7 @@ scene.add(light);
 const helper = new THREE.DirectionalLightHelper( light, 100 );
 scene.add( helper );
 
-const floorGeometry = new THREE.PlaneGeometry(1500,1500);
+const floorGeometry = new THREE.PlaneGeometry(2500,2500);
 const floorMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
 const floor = new THREE.Mesh(floorGeometry, floorMaterial);
 floor.rotation.x = -Math.PI / 2; 
@@ -47,12 +47,14 @@ scene.add(floor);
 
 
 const control = new OrbitControls(camera, renderer.domElement);
-
+const buildings = [];
 
 const loader = new GLTFLoader();
-loader.load('/cityMapWithoutFloor.glb', function (gltf) {
+loader.load('/cityMap(separateObjects).glb', function (gltf) {
   gltf.scene.traverse(function (node) {
     if (node.isMesh) {
+      buildings.push(node);
+      identifyAndColorTopFaces(node);
       node.material = new THREE.MeshStandardMaterial({ color: 0xffffff });
       node.castShadow = true; 
       node.receiveShadow = true; 
@@ -89,12 +91,75 @@ function updateSunPosition() {
   if (sunPosition.altitude < 0) {
     light.intensity = 0; 
   } else {
-    light.intensity = 7; 
+    light.intensity = 5; 
   }
 }
 
 document.getElementById('updateSunPosition').addEventListener('click', updateSunPosition);
 
+function identifyAndColorTopFaces(mesh) {
+  const geometry = mesh.geometry;
+  if (!geometry.isBufferGeometry) {
+    console.error('Geometry is not a BufferGeometry');
+    return;
+  }
+
+  const positionAttribute = geometry.getAttribute('position');
+  const index = geometry.getIndex();
+  const vertices = [];
+  for (let i = 0; i < positionAttribute.count; i++) {
+    vertices.push(new THREE.Vector3().fromBufferAttribute(positionAttribute, i));
+  }
+
+  const maxY = Math.max(...vertices.map(v => v.y));
+  const threshold = maxY - 0.1; 
+
+  const topFaces = [];
+  for (let i = 0; i < index.count; i += 3) {
+    const a = index.getX(i);
+    const b = index.getX(i + 1);
+    const c = index.getX(i + 2);
+
+    const vertexA = vertices[a];
+    const vertexB = vertices[b];
+    const vertexC = vertices[c];
+
+    const isTopFace = [vertexA, vertexB, vertexC].every((vertex) => vertex.y >= threshold);
+    if (isTopFace) {
+      topFaces.push({ a, b, c });
+    }
+  }
+
+  if (topFaces.length > 0) {
+
+    const rooftopGeometry = new THREE.BufferGeometry();
+    const rooftopVertices = [];
+    const rooftopIndices = [];
+
+    topFaces.forEach((face, index) => {
+      const vertexA = vertices[face.a];
+      const vertexB = vertices[face.b];
+      const vertexC = vertices[face.c];
+
+      const liftAmount = 0.1;
+      rooftopVertices.push(vertexA.x, vertexA.y + liftAmount, vertexA.z);
+      rooftopVertices.push(vertexB.x, vertexB.y + liftAmount, vertexB.z);
+      rooftopVertices.push(vertexC.x, vertexC.y + liftAmount, vertexC.z);
+
+      rooftopIndices.push(index * 3, index * 3 + 1, index * 3 + 2);
+    });
+
+    rooftopGeometry.setAttribute('position', new THREE.Float32BufferAttribute(rooftopVertices, 3));
+    rooftopGeometry.setIndex(rooftopIndices);
+
+    const material = new THREE.MeshBasicMaterial({ color: 0xff0000, side: THREE.DoubleSide });
+    const rooftopMesh = new THREE.Mesh(rooftopGeometry, material);
+    rooftopMesh.castShadow = false; 
+    scene.add(rooftopMesh);
+  } else {
+    console.log('No top faces identified for mesh:', mesh);
+  }
+}
 
 function animate() {
   requestAnimationFrame(animate);
@@ -102,3 +167,4 @@ function animate() {
   renderer.render(scene, camera);
 }
 animate();
+console.log(buildings);
