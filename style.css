@@ -3,3 +3,34 @@ canvas {
   top: 0;
   left: 0;
 }
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+}
+#container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+#controls {
+  padding: 10px;
+  background: #f0f0f0;
+  z-index: 1;
+}
+#bg {
+  flex-grow: 1;
+}
+.card {
+  display: none;
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 250px;
+  padding: 20px;
+  margin-top: 50px;
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
