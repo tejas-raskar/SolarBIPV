@@ -4,6 +4,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { updateSunPosition } from './sunPosition';
 import { identifyTopFaces, onBuildingClick } from './buildingUtils';
+import { Sky } from 'three/examples/jsm/objects/Sky.js';
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
@@ -15,8 +16,6 @@ renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
-camera.position.setZ(30);
 
 const light = new THREE.DirectionalLight(0xffffff, 5);
 light.position.set(-1500, 200, 100); 
@@ -41,6 +40,12 @@ floor.receiveShadow = true;
 scene.add(floor);
 
 const control = new OrbitControls(camera, renderer.domElement);
+control.minPolarAngle = 0;
+control.maxPolarAngle = Math.PI /2.5; 
+control.minDistance = 50; 
+control.maxDistance = 500; 
+
+camera.position.set(0, 100, 500);
 const buildings = [];
 
 const loader = new GLTFLoader();
@@ -60,7 +65,41 @@ loader.load('cityMap(separateObjects).glb', function (gltf) {
   console.log(error);
 });
 
-document.getElementById('updateSunPosition').addEventListener('click', () => updateSunPosition(light));
+const sky = new Sky();
+sky.scale.setScalar(450000);
+scene.add(sky);
+
+
+const sun = new THREE.Vector3();
+
+const uniforms = sky.material.uniforms;
+uniforms['turbidity'].value = 10;
+uniforms['rayleigh'].value = 2;
+uniforms['mieCoefficient'].value = 0.005;
+uniforms['mieDirectionalG'].value = 0.8;
+
+
+export const sunPosition = {
+  azimuth: 0,
+  altitude: 0,
+};
+
+function updateSky(sunPos) {
+  sun.set(sunPos.x, sunPos.y, sunPos.z);
+  uniforms['sunPosition'].value.copy(sun);
+  renderer.toneMappingExposure = 0.5;
+}
+
+
+updateSky(sunPosition);
+
+document.getElementById('updateSunPosition').addEventListener('click', () => {
+  const sunPos = updateSunPosition(light);
+  if (sunPos) {
+    updateSky(sunPos); 
+  }
+});
+
 
 window.addEventListener('click', (event) => onBuildingClick(event, camera, buildings, light, scene));
 
