@@ -17,7 +17,9 @@ function isPointInShadow(point, light, scene, numRays = 50) {
   
       const intersects = raycaster.intersectObject(scene, true);
   
-      if (intersects.length > 0) {
+      const validIntersects = intersects.filter(intersect => intersect.object.name !== 'Sky');
+  
+      if (validIntersects.length > 0) {
         shadowedRays += 1;
       }
     }
@@ -62,10 +64,11 @@ export function calculateRooftopArea(building, light, scene) {
   
       const shadowFraction = isPointInShadow(centroid, light, scene);
       totalShadowFraction += shadowFraction * triangleArea;
+      console.log(totalShadowFraction);
     }
   
     const averageShadowFraction = totalShadowFraction / totalArea;
-    const pvValue = GHI * totalArea * (1 - averageShadowFraction);
+    const pvValue = GHI * totalArea * (1 - averageShadowFraction) * 0.15;
   
     document.getElementById('buildingName').innerText = `${building.name}`;
     document.getElementById('totalArea').innerText = `Total Rooftop Area: ${totalArea.toFixed(2)}`;

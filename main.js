@@ -67,6 +67,7 @@ loader.load('cityMap(separateObjects).glb', function (gltf) {
 
 const sky = new Sky();
 sky.scale.setScalar(450000);
+sky.name = 'Sky';
 scene.add(sky);
 
 
