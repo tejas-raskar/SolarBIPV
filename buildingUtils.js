@@ -63,7 +63,7 @@ function highlightBuilding(building) {
   if (!originalMaterials.has(building)) {
     originalMaterials.set(building, building.material);
   }
-  building.material = new THREE.MeshBasicMaterial({ color: 0xffff00 }); 
+  building.material = new THREE.MeshStandardMaterial({ color: 0xffff00}); 
 }
 
 function revertHighlight(building) {

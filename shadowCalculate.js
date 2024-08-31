@@ -64,7 +64,6 @@ export function calculateRooftopArea(building, light, scene) {
   
       const shadowFraction = isPointInShadow(centroid, light, scene);
       totalShadowFraction += shadowFraction * triangleArea;
-      console.log(totalShadowFraction);
     }
   
     const averageShadowFraction = totalShadowFraction / totalArea;

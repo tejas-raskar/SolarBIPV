@@ -69,12 +69,12 @@ const sky = new Sky();
 sky.scale.setScalar(450000);
 sky.name = 'Sky';
 scene.add(sky);
-
+scene.fog = new THREE.FogExp2(0xcccccc, 0.001);
 
 const sun = new THREE.Vector3();
 
 const uniforms = sky.material.uniforms;
-uniforms['turbidity'].value = 10;
+uniforms['turbidity'].value = 5;
 uniforms['rayleigh'].value = 2;
 uniforms['mieCoefficient'].value = 0.005;
 uniforms['mieDirectionalG'].value = 0.8;
@@ -93,8 +93,13 @@ function updateSky(sunPos) {
 
 
 updateSky(sunPosition);
+document.getElementById('timeSlider').addEventListener('input', (event) => {
+  const timeSlider = event.target.value;
+  const hours = Math.floor(timeSlider / 60);
+  const minutes = timeSlider % 60;
+  const timeLabel = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+  document.getElementById('timeLabel').innerText = timeLabel;
 
-document.getElementById('updateSunPosition').addEventListener('click', () => {
   const sunPos = updateSunPosition(light);
   if (sunPos) {
     updateSky(sunPos); 

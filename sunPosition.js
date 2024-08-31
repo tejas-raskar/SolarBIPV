@@ -6,12 +6,16 @@ const longitude = 72.8777;
 
 export function updateSunPosition(light) {
   const dateInput = document.getElementById('dateInput').value;
-  const timeInput = document.getElementById('timeInput').value;
+  const timeSlider = document.getElementById('timeSlider').value;
 
-  if (!dateInput || !timeInput) {
-    alert('Please enter both date and time.');
+  if (!dateInput) {
+    alert('Please enter a date.');
     return null;
   }
+
+  const hours = Math.floor(timeSlider / 60);
+  const minutes = timeSlider % 60;
+  const timeInput = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
 
   const date = new Date(`${dateInput}T${timeInput}`);
   const sunPos = SunCalc.getPosition(date, latitude, longitude);
@@ -35,3 +39,4 @@ export function updateSunPosition(light) {
 
   return {x, y, z};
 }
+

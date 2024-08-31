@@ -9,9 +9,9 @@
     <div id="container">
       <div id="controls">
         <input type="date" id="dateInput">
-        <input type="time" id="timeInput">
-        <input type="number" id="ghi">
-        <button id="updateSunPosition">Update Sun Position</button>
+        <input type="range" id="timeSlider" min="0" max="1440" step="1">
+        <span id="timeLabel">12:00</span>
+        <input type="number" id="ghi" value="5.5">
       </div>
       <canvas id="bg"></canvas>
     </div>
