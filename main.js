@@ -32,12 +32,20 @@ light.shadow.camera.bottom = -2000;
 
 scene.add(light);
 
-const floorGeometry = new THREE.PlaneGeometry(3000, 2500);
-const floorMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
+const textureLoader = new THREE.TextureLoader();
+const satelliteTexture = textureLoader.load('satellite.jpg'); 
+
+const floorGeometry = new THREE.PlaneGeometry(2620, 1800);
+const floorMaterial = new THREE.MeshStandardMaterial({ map: satelliteTexture });
 const floor = new THREE.Mesh(floorGeometry, floorMaterial);
 floor.rotation.x = -Math.PI / 2; 
 floor.receiveShadow = true; 
 scene.add(floor);
+
+
+floor.position.set(-60, 0, -130); 
+floor.scale.set(1, 1, 1);
+
 
 const control = new OrbitControls(camera, renderer.domElement);
 control.minPolarAngle = 0;
@@ -69,7 +77,7 @@ const sky = new Sky();
 sky.scale.setScalar(450000);
 sky.name = 'Sky';
 scene.add(sky);
-scene.fog = new THREE.FogExp2(0xcccccc, 0.001);
+scene.fog = new THREE.FogExp2(0xcccccc, 0.0008);
 
 const sun = new THREE.Vector3();
 

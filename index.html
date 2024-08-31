@@ -8,10 +8,19 @@
   <body>
     <div id="container">
       <div id="controls">
-        <input type="date" id="dateInput">
-        <input type="range" id="timeSlider" min="0" max="1440" step="1">
-        <span id="timeLabel">12:00</span>
-        <input type="number" id="ghi" value="5.5">
+        <span>
+          <label for="dateInput" style="margin-top: 8px;">Date:</label>
+          <input type="date" id="dateInput">
+        </span>
+        <span>
+          <label for="timeSlider" style="margin-top: 8px;">Time of the day:</label>
+          <input type="range" id="timeSlider" min="0" max="1440" step="1">
+          <span id="timeLabel">12:00</span>
+        </span>
+        <span>
+          <label for="ghi" style="margin-top: 8px;">GHI: </label>
+          <input type="number" id="ghi" value="5.5">
+        </span>
       </div>
       <canvas id="bg"></canvas>
     </div>

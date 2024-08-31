@@ -20,6 +20,7 @@ body, html {
 
 #controls {
   display: flex;
+  justify-content: space-around;
   padding: 10px;
   background: #333;
   color: #fff;
