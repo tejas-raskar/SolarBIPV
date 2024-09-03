@@ -74,6 +74,15 @@ function revertHighlight(building) {
 }
 
 let highlightedBuilding = null;
+
+function getColorForValue(value, min, max) {
+  const ratio = (value - min) / (max - min);
+  const startColor = new THREE.Color(0xffa500);
+  const endColor = new THREE.Color(0xff4500); 
+  const color = startColor.clone().lerp(endColor, ratio);
+  return color;
+}
+
 export function onBuildingClick(event, camera, buildings, light, scene) {
   const mouse = new THREE.Vector2();
   mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -90,6 +99,28 @@ export function onBuildingClick(event, camera, buildings, light, scene) {
     }
     highlightBuilding(building); 
     highlightedBuilding = building; 
-    calculateRooftopArea(building, light, scene);
+    const bipvValues = calculateRooftopArea(building, light, scene);
+
+    const geometry = building.geometry;
+    const colors = new Float32Array(geometry.attributes.position.count * 3);
+    const minBipv = Math.min(...bipvValues.map(v => v.bipvValue));
+    const maxBipv = Math.max(...bipvValues.map(v => v.bipvValue));
+
+    bipvValues.forEach(({ a, b, c, bipvValue }) => {
+      const color = new THREE.Color(getColorForValue(bipvValue, minBipv, maxBipv));
+      colors[a * 3] = color.r;
+      colors[a * 3 + 1] = color.g;
+      colors[a * 3 + 2] = color.b;
+      colors[b * 3] = color.r;
+      colors[b * 3 + 1] = color.g;
+      colors[b * 3 + 2] = color.b;
+      colors[c * 3] = color.r;
+      colors[c * 3 + 1] = color.g;
+      colors[c * 3 + 2] = color.b;
+    });
+
+    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    building.material.vertexColors = true;
+    building.material.needsUpdate = true;
   }
 }
