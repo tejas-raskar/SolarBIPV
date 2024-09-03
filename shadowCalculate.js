@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { getTotalDaytime } from './sunPosition';
 
 function isPointInShadow(point, light, scene, numRays = 50) {
     const raycaster = new THREE.Raycaster();
@@ -30,6 +31,10 @@ function isPointInShadow(point, light, scene, numRays = 50) {
 
 export function calculateRooftopArea(building, light, scene) {
   const GHI = document.getElementById("ghi").value;
+  const dateInput = document.getElementById("dateInput").value;
+
+  const date = new Date(dateInput);
+  const totalDaytime = getTotalDaytime(date);
 
   const geometry = building.geometry;
   const vertices = geometry.attributes.position.array;
@@ -73,9 +78,10 @@ export function calculateRooftopArea(building, light, scene) {
   const pvValue = GHI * totalArea * (1 - averageShadowFraction) * 0.15;
 
   document.getElementById('buildingName').innerText = `${building.name}`;
-  document.getElementById('totalArea').innerText = `Total Rooftop Area: ${totalArea} sq.m`;
+  document.getElementById('totalDaytime').innerText = `Total Daytime: ${totalDaytime.toFixed(2)} hours`;
+  document.getElementById('totalArea').innerText = `Total Rooftop Area: ${totalArea.toFixed(2)} sq.m`;
   document.getElementById('shadowFraction').innerText = `Average Shadow Fraction Over Area: ${averageShadowFraction.toFixed(2)}`;
-  document.getElementById('pvValue').innerText = `PV Value: ${pvValue} kWhr`;
+  document.getElementById('pvValue').innerText = `PV Value: ${pvValue.toFixed(2)} kWhr`;
 
   document.getElementById('infoCard').style.display = 'block';
 
