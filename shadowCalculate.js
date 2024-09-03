@@ -70,9 +70,9 @@ export function calculateRooftopArea(building, light, scene) {
     const pvValue = GHI * totalArea * (1 - averageShadowFraction) * 0.15;
   
     document.getElementById('buildingName').innerText = `${building.name}`;
-    document.getElementById('totalArea').innerText = `Total Rooftop Area: ${totalArea.toFixed(2)}`;
+    document.getElementById('totalArea').innerText = `Total Rooftop Area: ${totalArea} sq.m`;
     document.getElementById('shadowFraction').innerText = `Average Shadow Fraction Over Area: ${averageShadowFraction.toFixed(2)}`;
-    document.getElementById('pvValue').innerText = `PV Value: ${pvValue.toFixed(2)}`;
+    document.getElementById('pvValue').innerText = `PV Value: ${pvValue} kWhr`;
   
     
     document.getElementById('infoCard').style.display = 'block';
