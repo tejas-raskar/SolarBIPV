@@ -4,6 +4,15 @@ import { sunPosition } from './main';
 const latitude = 19.0760;
 const longitude = 72.8777;
 
+export function getTotalDaytime(date) {
+  const times = SunCalc.getTimes(date, latitude, longitude);
+  const sunrise = times.sunrise;
+  const sunset = times.sunset;
+
+  const totalDaytime = (sunset - sunrise) / (1000 * 60 * 60); 
+  return totalDaytime;
+}
+
 export function updateSunPosition(light) {
   const dateInput = document.getElementById('dateInput').value;
   const timeSlider = document.getElementById('timeSlider').value;
