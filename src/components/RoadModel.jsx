@@ -1,6 +1,7 @@
 import { useGLTF } from "@react-three/drei";
 import { MeshStandardMaterial } from "three";
 
+const roadMaterial = new MeshStandardMaterial({ color: 0xa5a5a5 });
 export const RoadModel = () => {
     const gltf = useGLTF('/assets/ny_roads.glb');
     const model = gltf.scene;
@@ -11,7 +12,7 @@ export const RoadModel = () => {
             if (node.isMesh) {
                 node.castShadow = true
                 node.receiveShadow = true
-                node.material = new MeshStandardMaterial({ color: 0xa5a5a5 });
+                node.material = roadMaterial;
             }
         })
     }

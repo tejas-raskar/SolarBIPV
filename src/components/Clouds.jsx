@@ -69,14 +69,13 @@ export const CloudLayer = ({ count, area, height, cullingDistance = 800 }) => {
           opacity={0.4}
           depthTest={false}
           rotation-y={cloud.initialRotation}
-          frustumCulled // Enable built-in frustum culling
+          frustumCulled 
         />
       ))}
     </group>
   );
 };
 
-// Performance optimizations using React.memo with custom comparison
 export default React.memo(CloudLayer, (prevProps, nextProps) => {
   return (
     prevProps.count === nextProps.count &&

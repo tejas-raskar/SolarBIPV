@@ -1,6 +1,7 @@
 import { useGLTF } from "@react-three/drei";
 import { MeshStandardMaterial } from "three";
 
+const buildingMaterial = new MeshStandardMaterial({ color: 0xffffff });
 export const CityModel = () => {
     const { scene } = useGLTF('/assets/ny.glb');
     scene.scale.set(0.5, 0.5, 0.5);
@@ -10,7 +11,7 @@ export const CityModel = () => {
             if (node.isMesh) {
                 node.castShadow = true
                 node.receiveShadow = true
-                node.material = new MeshStandardMaterial({ color: 0xffffff });
+                node.material = buildingMaterial;
             }
         })
     }
