@@ -2,18 +2,21 @@ import { useGLTF } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { MeshStandardMaterial, Raycaster, Vector2 } from "three";
+import { calculateRooftopArea } from "../utils/rooftopArea";
+import { createHighlightMesh } from "../utils/highlightRooftops";
 
 const buildingMaterial = new MeshStandardMaterial({ color: 0xffffff });
 const highlightedMaterial = new MeshStandardMaterial({ color: 0xffa500 });
 
-export const CityModel = () => {
-  const { scene } = useGLTF("/assets/ny.glb");
-  const { camera } = useThree();
+export const CityModel = ({ onRooftopAreaChange }) => {
+  const { scene } = useGLTF("/assets/ny_noDecimate.glb");
+  const { camera, scene: mainScene } = useThree();
 
   const raycaster = useRef(new Raycaster());
   const pointer = useRef(new Vector2());
   const prevHoveredBuilding = useRef(null);
   const prevSelectedBuilding = useRef(null);
+  const highlightMeshRef = useRef(null);
 
   const [hoveredBuilding, setHoveredBuilding] = useState(null);
   const [selectedBuilding, setSelectedBuilding] = useState(null);
@@ -37,6 +40,42 @@ export const CityModel = () => {
       });
     }
   }, [scene]);
+
+  useEffect(() => {
+    if (selectedBuilding) {
+      const { area, rooftopVertexIndices } = calculateRooftopArea(selectedBuilding);
+
+      if (highlightMeshRef.current) {
+        mainScene.remove(highlightMeshRef.current);
+        highlightMeshRef.current.geometry.dispose();
+        highlightMeshRef.current.material.dispose();
+      }
+
+      const highlightMesh = createHighlightMesh(selectedBuilding, rooftopVertexIndices);
+      highlightMeshRef.current = highlightMesh;
+      mainScene.add(highlightMesh);
+
+      if (onRooftopAreaChange) onRooftopAreaChange(area);
+
+    } else {
+      if (highlightMeshRef.current) {
+        mainScene.remove(highlightMeshRef.current);
+        highlightMeshRef.current.geometry.dispose();
+        highlightMeshRef.current.material.dispose();
+        highlightMeshRef.current = null;
+      }
+      if (onRooftopAreaChange) onRooftopAreaChange(0);
+    }
+
+    return () => {
+      if (highlightMeshRef.current) {
+        mainScene.remove(highlightMeshRef.current);
+        highlightMeshRef.current.geometry.dispose();
+        highlightMeshRef.current.material.dispose();
+        highlightMeshRef.current = null;
+      }
+    };
+  }, [selectedBuilding, onRooftopAreaChange, mainScene]);
 
   const onPointerDown = useCallback(
     (event) => {
@@ -99,7 +138,7 @@ export const CityModel = () => {
     if (prevHoveredBuilding.current && prevHoveredBuilding.current !== hoveredBuilding && prevHoveredBuilding.current !== selectedBuilding) {
       prevHoveredBuilding.current.material = buildingMaterial;
     }
-    
+
     if (prevSelectedBuilding.current && prevSelectedBuilding.current !== selectedBuilding && prevSelectedBuilding.current !== hoveredBuilding) {
       prevSelectedBuilding.current.material = buildingMaterial;
     }
