@@ -6,6 +6,7 @@ export const calculateRooftopArea = (mesh, normalThreshold = 0.5) => {
     const indexAttribute = geometry.index;
     let totalArea = 0;
     const rooftopVertexIndices = [];
+    const weightedNormal = new Vector3();
 
     const vA = new Vector3();
     const vB = new Vector3();
@@ -34,6 +35,7 @@ export const calculateRooftopArea = (mesh, normalThreshold = 0.5) => {
                 const area = calculateTriangleArea(vA, vB, vC);
                 totalArea += area;
                 rooftopVertexIndices.push(a, b, c);
+                weightedNormal.addScaledVector(normal, area);
             }
         }
     } else {
@@ -54,11 +56,18 @@ export const calculateRooftopArea = (mesh, normalThreshold = 0.5) => {
                 const area = calculateTriangleArea(vA, vB, vC);
                 totalArea += area;
                 rooftopVertexIndices.push(i, i + 1, i + 2);
+                weightedNormal.addScaledVector(normal, area);
             }
         }
     }
 
-    return { area: totalArea * 4, rooftopVertexIndices };
+    if (totalArea > 0) {
+        weightedNormal.normalize();
+    } else {
+        weightedNormal.set(0, 1, 0);
+    }
+
+    return { area: totalArea * 4, rooftopVertexIndices, weightedNormal };
 };
 
 const calculateTriangleArea = (vA, vB, vC) => {

@@ -4,11 +4,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { MeshStandardMaterial, Raycaster, Vector2 } from "three";
 import { calculateRooftopArea } from "../utils/rooftopArea";
 import { createHighlightMesh } from "../utils/highlightRooftops";
+import { calculateBIPV } from "../utils/bipvCalculation";
 
 const buildingMaterial = new MeshStandardMaterial({ color: 0xffffff });
 const highlightedMaterial = new MeshStandardMaterial({ color: 0xffa500 });
 
-export const CityModel = ({ onRooftopAreaChange }) => {
+export const CityModel = ({ date, time, onRooftopAreaChange, showRayVisualization }) => {
   const { scene } = useGLTF("/assets/ny_noDecimate.glb");
   const { camera, scene: mainScene } = useThree();
 
@@ -39,11 +40,12 @@ export const CityModel = ({ onRooftopAreaChange }) => {
         }
       });
     }
-  }, [scene]);
+  }, [scene, mainScene]);
 
   useEffect(() => {
     if (selectedBuilding) {
-      const { area, rooftopVertexIndices } = calculateRooftopArea(selectedBuilding);
+      const { area, rooftopVertexIndices, weightedNormal } = calculateRooftopArea(selectedBuilding);
+      const bipvPower = calculateBIPV(selectedBuilding, date, time, mainScene, area, rooftopVertexIndices, weightedNormal, showRayVisualization);
 
       if (highlightMeshRef.current) {
         mainScene.remove(highlightMeshRef.current);
@@ -55,8 +57,9 @@ export const CityModel = ({ onRooftopAreaChange }) => {
       highlightMeshRef.current = highlightMesh;
       mainScene.add(highlightMesh);
 
-      if (onRooftopAreaChange) onRooftopAreaChange(area);
-
+      if (onRooftopAreaChange) {
+        onRooftopAreaChange({ area, bipvPower });
+      }
     } else {
       if (highlightMeshRef.current) {
         mainScene.remove(highlightMeshRef.current);
@@ -64,7 +67,9 @@ export const CityModel = ({ onRooftopAreaChange }) => {
         highlightMeshRef.current.material.dispose();
         highlightMeshRef.current = null;
       }
-      if (onRooftopAreaChange) onRooftopAreaChange(0);
+      if (onRooftopAreaChange) {
+        onRooftopAreaChange({ area: 0, bipvPower: 0 });
+      }
     }
 
     return () => {
@@ -75,7 +80,7 @@ export const CityModel = ({ onRooftopAreaChange }) => {
         highlightMeshRef.current = null;
       }
     };
-  }, [selectedBuilding, onRooftopAreaChange, mainScene]);
+  }, [selectedBuilding, date, time, onRooftopAreaChange, mainScene]);
 
   const onPointerDown = useCallback(
     (event) => {
