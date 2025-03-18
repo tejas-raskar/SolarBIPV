@@ -8,24 +8,22 @@ import { calculateBIPV } from "../utils/bipvCalculation";
 
 const buildingMaterial = new MeshStandardMaterial({ color: 0xffffff });
 const highlightedMaterial = new MeshStandardMaterial({ color: 0xffa500 });
+const DRAG_THRESHOLD = 5;
 
 export const CityModel = ({ date, time, onRooftopAreaChange, showRayVisualization }) => {
   const { scene } = useGLTF("/assets/ny_noDecimate.glb");
   const { camera, scene: mainScene } = useThree();
-
   const raycaster = useRef(new Raycaster());
   const pointer = useRef(new Vector2());
   const prevHoveredBuilding = useRef(null);
   const prevSelectedBuilding = useRef(null);
   const highlightMeshRef = useRef(null);
-
-  const [hoveredBuilding, setHoveredBuilding] = useState(null);
-  const [selectedBuilding, setSelectedBuilding] = useState(null);
-
   const isDragging = useRef(false);
   const startPosition = useRef(new Vector2());
   const potentialSelection = useRef(null);
-  const DRAG_THRESHOLD = 5;
+  const rooftopDataRef = useRef(null);
+  const [hoveredBuilding, setHoveredBuilding] = useState(null);
+  const [selectedBuilding, setSelectedBuilding] = useState(null);
 
   useEffect(() => {
     if (scene) {
@@ -40,12 +38,12 @@ export const CityModel = ({ date, time, onRooftopAreaChange, showRayVisualizatio
         }
       });
     }
-  }, [scene, mainScene]);
+  }, [scene]);
 
+  // Calculate rooftop area only when selected building changes
   useEffect(() => {
     if (selectedBuilding) {
-      const { area, rooftopVertexIndices, weightedNormal } = calculateRooftopArea(selectedBuilding);
-      const bipvPower = calculateBIPV(selectedBuilding, date, time, mainScene, area, rooftopVertexIndices, weightedNormal, showRayVisualization);
+      rooftopDataRef.current = calculateRooftopArea(selectedBuilding);
 
       if (highlightMeshRef.current) {
         mainScene.remove(highlightMeshRef.current);
@@ -53,25 +51,37 @@ export const CityModel = ({ date, time, onRooftopAreaChange, showRayVisualizatio
         highlightMeshRef.current.material.dispose();
       }
 
-      const highlightMesh = createHighlightMesh(selectedBuilding, rooftopVertexIndices);
+      const highlightMesh = createHighlightMesh(selectedBuilding, rooftopDataRef.current.rooftopVertexIndices);
       highlightMeshRef.current = highlightMesh;
       mainScene.add(highlightMesh);
-
-      if (onRooftopAreaChange) {
-        onRooftopAreaChange({ area, bipvPower });
-      }
     } else {
+      rooftopDataRef.current = null;
+
       if (highlightMeshRef.current) {
         mainScene.remove(highlightMeshRef.current);
         highlightMeshRef.current.geometry.dispose();
         highlightMeshRef.current.material.dispose();
         highlightMeshRef.current = null;
       }
+
       if (onRooftopAreaChange) {
         onRooftopAreaChange({ area: 0, bipvPower: 0 });
       }
     }
+  }, [selectedBuilding, mainScene]);
 
+  // Calculate BIPV power when date/time changes 
+  useEffect(() => {
+    if (selectedBuilding && rooftopDataRef.current) {
+      const { area, rooftopVertexIndices, weightedNormal } = rooftopDataRef.current;
+      const bipvPower = calculateBIPV(selectedBuilding, date, time, mainScene, area, rooftopVertexIndices, weightedNormal, showRayVisualization);
+      if (onRooftopAreaChange) {
+        onRooftopAreaChange({ area, bipvPower });
+      }
+    }
+  }, [selectedBuilding, date, time, mainScene, onRooftopAreaChange, showRayVisualization]);
+
+  useEffect(() => {
     return () => {
       if (highlightMeshRef.current) {
         mainScene.remove(highlightMeshRef.current);
@@ -80,27 +90,25 @@ export const CityModel = ({ date, time, onRooftopAreaChange, showRayVisualizatio
         highlightMeshRef.current = null;
       }
     };
-  }, [selectedBuilding, date, time, onRooftopAreaChange, mainScene]);
+  }, [mainScene]);
 
-  const onPointerDown = useCallback(
-    (event) => {
-      startPosition.current.set(event.clientX, event.clientY);
-      isDragging.current = false;
-      pointer.current.x = (event.clientX / window.innerWidth) * 2 - 1;
-      pointer.current.y = -(event.clientY / window.innerHeight) * 2 + 1;
-      raycaster.current.setFromCamera(pointer.current, camera);
-      const intersects = raycaster.current.intersectObjects(scene.children, true);
-      if (intersects.length > 0 && intersects[0].object.userData.isBuilding) {
-        potentialSelection.current = intersects[0].object;
-      } else {
-        potentialSelection.current = null;
-      }
-    },
+  const onPointerDown = useCallback((event) => {
+    startPosition.current.set(event.clientX, event.clientY);
+    isDragging.current = false;
+    pointer.current.x = (event.clientX / window.innerWidth) * 2 - 1;
+    pointer.current.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    raycaster.current.setFromCamera(pointer.current, camera);
+    const intersects = raycaster.current.intersectObjects(scene.children, true);
+    if (intersects.length > 0 && intersects[0].object.userData.isBuilding) {
+      potentialSelection.current = intersects[0].object;
+    } else {
+      potentialSelection.current = null;
+    }
+  },
     [camera, scene]
   );
 
-  const onPointerMove = useCallback(
-    (event) => {
+  const onPointerMove = useCallback((event) => {
       if (!isDragging.current) {
         const currentPosition = new Vector2(event.clientX, event.clientY);
         const distance = currentPosition.distanceTo(startPosition.current);
