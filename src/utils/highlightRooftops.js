@@ -1,6 +1,6 @@
 import { BufferGeometry, DoubleSide, Float32BufferAttribute, Mesh, MeshBasicMaterial, Vector3 } from "three";
 
-export const createHighlightMesh = (originalMesh, rooftopVertexIndices, offset = 1) => {
+export const createHighlightMesh = (originalMesh, rooftopVertexIndices, offset = 0.2) => {
     const geometry = originalMesh.geometry;
     const positionAttribute = geometry.attributes.position;
     const indexAttribute = geometry.index;

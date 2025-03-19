@@ -12,8 +12,8 @@ export const CloudLayer = ({ count, area, height, cullingDistance = 800 }) => {
       const x = (Math.random() - 0.5) * area;
       const z = (Math.random() - 0.5) * area;
       const y = height + Math.random() * 120;
-      const scale = 8 + Math.random() * 6;
-      const speed = 0.05 + Math.random() * 0.05;
+      const scale = 8 + Math.random() * 10;
+      const speed = 0.1 + Math.random() * 0.05;
       const segments = 16 + Math.floor(Math.random() * 16);
       const rotationSpeed = (Math.random() - 0.5) * 0.02;
       const initialRotation = Math.random() * Math.PI * 2;

@@ -5,7 +5,7 @@ import { getSunPosition, getAdjustedDateTime, latitude } from './sunPosition';
 const monthlyGHI = [2.0, 2.89, 3.91, 4.77, 5.51, 5.85, 5.85, 5.17, 4.3, 3.03, 2.08, 1.75];
 const monthlyDNI = [3.23, 3.89, 3.91, 4.1, 4.16, 4.23, 4.32, 4.18, 4.1, 3.42, 2.79, 2.97]; 
 
-// Calculate instantaneous solar irradiance (W/m²)
+// Calculate instantaneous solar irradiance
 function getSolarIrradiance(date, time) {
     const adjustedDateTime = getAdjustedDateTime(date, time);
     const month = adjustedDateTime.getMonth();
@@ -13,11 +13,11 @@ function getSolarIrradiance(date, time) {
     const dniDaily = monthlyDNI[month];
 
     const { altitude } = getSunPosition(date, time);
-    const maxAlpha = (90 - latitude + 23.5) * (Math.PI / 180); // Max altitude in radians
+    const maxAlpha = (90 - latitude + 23.5) * (Math.PI / 180);
     const ghiInstant = altitude > 0 ? (ghiDaily * Math.sin(altitude) / Math.sin(maxAlpha)) * 1000 / 24 : 0;
-    const dniInstant = altitude > 0 ? (dniDaily * 1000 / 24) : 0; // Simplified conversion
+    const dniInstant = altitude > 0 ? (dniDaily * 1000 / 24) : 0; 
 
-    return { ghi: ghiInstant, dni: dniInstant };
+    return { ghi: ghiInstant, dni: dniInstant, ghiDaily, dniDaily };
 }
 
 // Get all objects that can cast shadows, excluding visualization objects and the building itself
@@ -88,6 +88,7 @@ function calculateShading(mesh, sunDirection, scene, rooftopVertexIndices, showR
             const intersects = raycaster.intersectObjects(shadowCasters, true);
 
             const isShaded = intersects.length > 0;
+            if (isShaded) shadedPoints++;
             if(showRays) {
                 const rayLength = 20;
                 const arrowHelper = new THREE.ArrowHelper(
@@ -171,7 +172,7 @@ function clearAllVisualizations(scene) {
 }
 
 export function calculateBIPV(mesh, date, time, scene, rooftopArea, rooftopVertexIndices, weightedNormal, showRays = false, efficiency = 0.2) {
-    const { ghi, dni } = getSolarIrradiance(date, time);
+    const { ghi, dni, ghiDaily, dniDaily } = getSolarIrradiance(date, time);
     const { direction: sunDirection } = getSunPosition(date, time);
     const shadowFactor = calculateShading(mesh, sunDirection, scene, rooftopVertexIndices, showRays);
     const normal = weightedNormal || new THREE.Vector3(0, 1, 0);
@@ -187,6 +188,12 @@ export function calculateBIPV(mesh, date, time, scene, rooftopArea, rooftopVerte
     return {
         powerW: totalPower,
         powerKW: parseFloat(totalPowerKW.toFixed(2)),  
-        formattedPower: `${totalPowerKW.toFixed(2)} kW` 
+        formattedPower: `${totalPowerKW.toFixed(2)} kW`,
+        avgGhi: `${ghiDaily} kWh/m²/da`,
+        avgDni: `${dniDaily} kWh/m²/da`,
+        instGhi: `${ghi.toFixed(5)} W/m²`,
+        instDni: `${dni.toFixed(5)} W/m²`,
+        effectiveIrradiance: `${effectiveIrradiance.toFixed(4)} W/m²`,
+        shadowFactor: `${shadowFactor.toFixed(4)*100} %`, 
     };
 }

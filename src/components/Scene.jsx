@@ -8,7 +8,7 @@ import { Vegetation } from "./Vegetation";
 import { CloudLayer } from "./Clouds";
 import { Ground } from "./Ground";
 import { updateLightPosition, useSunControls } from "../utils/sunPosition";
-import { useControls } from "leva";
+import { folder, useControls } from "leva";
 
 export const Scene = () => {
 
@@ -29,9 +29,11 @@ export const Scene = () => {
   }, [scene]);
 
   const { showRays } = useControls({
-    showRays: {
-      value: false
-    }
+    Debug: folder({
+      showRays: {
+        value: false
+      }
+    })
   })
 
   return (
@@ -55,7 +57,7 @@ export const Scene = () => {
       <Sky sunPosition={directionalLightRef.current ? directionalLightRef.current.position.toArray() : [-1500, 200, 100]} />
       <Ground />
       <group position={[150, 0, -80]}>
-        <CityModel date={date} time={time} onRooftopAreaChange={({ area, bipvPower }) => console.log(`Area: ${area.toFixed(2)} m², BIPV Power: ${bipvPower.formattedPower}`)} showRayVisualization={showRays} />
+        <CityModel date={date} time={time} showRayVisualization={showRays} />
         <RoadModel />
         <Vegetation />
         <CloudLayer count={20} area={500} height={190} />

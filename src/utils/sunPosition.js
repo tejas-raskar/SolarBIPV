@@ -1,4 +1,4 @@
-import { useControls } from 'leva';
+import { folder, useControls } from 'leva';
 import SunCalc from 'suncalc';
 import { Vector3 } from 'three';
 
@@ -64,7 +64,7 @@ export function updateLightPosition(light, date, time) {
 
 // Controls for date and time
 export function useSunControls() {
-    return useControls({
+    return useControls({'Date & Time': folder({
         date: {
             value: new Date().toISOString().split('T')[0],
             label: 'Date'
@@ -76,5 +76,5 @@ export function useSunControls() {
             step: 1,
             label: 'Time'
         }
-    });
+    })});
 }
