@@ -7,6 +7,9 @@ body,
   height: 100%;
   margin: 0;
   padding: 0;
+  --leva-colors-highlight2: #fefefe;
+  --leva-fontSizes-root: 12px;
+  --leva-sizes-rootWidth: 330px;
 }
 
 body {
@@ -16,4 +19,8 @@ body {
 canvas {
   width: 100% !important;
   height: 100% !important;
+}
+
+#leva__root {
+  background-color: white;
 }

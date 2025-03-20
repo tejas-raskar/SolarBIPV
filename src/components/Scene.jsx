@@ -1,7 +1,7 @@
-import { OrbitControls, Sky, useHelper } from "@react-three/drei";
-import { useThree } from "@react-three/fiber";
-import { useEffect, useRef, useState } from "react";
-import { DirectionalLightHelper, FogExp2 } from "three";
+import { OrbitControls, Sky, Stars, useHelper } from "@react-three/drei";
+import { useThree, useLoader } from "@react-three/fiber";
+import { useEffect, useRef } from "react";
+import { DirectionalLightHelper, FogExp2, TextureLoader } from "three";
 import { CityModel } from "./CityModel";
 import { RoadModel } from "./RoadModel";
 import { Vegetation } from "./Vegetation";
@@ -11,10 +11,9 @@ import { updateLightPosition, useSunControls } from "../utils/sunPosition";
 import { folder, useControls } from "leva";
 
 export const Scene = () => {
-
   // Directional Light
   const directionalLightRef = useRef();
-  useHelper(directionalLightRef, DirectionalLightHelper, 100, "white");
+  // useHelper(directionalLightRef, DirectionalLightHelper, 100, "white");
   const { date, time } = useSunControls();
   useEffect(() => {
     if (directionalLightRef.current) {
@@ -30,16 +29,15 @@ export const Scene = () => {
 
   const { showRays } = useControls({
     Debug: folder({
-      showRays: {
-        value: false
-      }
-    })
-  })
+      showRays: { value: false },
+    }),
+  });
 
+  const isNight = time >= 1080 || time <= 300; 
   return (
     <>
-      <OrbitControls minPolarAngle={0} maxPolarAngle={Math.PI / 2.5} minDistance={100} maxDistance={800} />
-      <ambientLight intensity={0.8} />
+      <OrbitControls minPolarAngle={0} maxPolarAngle={Math.PI / 2.5} minDistance={200} maxDistance={800} />
+      {!isNight && (<ambientLight intensity={0.5} />)}
       <directionalLight
         color={"orange"}
         position={[-1500, 200, 100]}
@@ -54,7 +52,23 @@ export const Scene = () => {
         shadow-camera-near={1}
         shadow-camera-far={5000}
       />
-      <Sky sunPosition={directionalLightRef.current ? directionalLightRef.current.position.toArray() : [-1500, 200, 100]} />
+      {!isNight && (<Sky sunPosition={directionalLightRef.current ? directionalLightRef.current.position.toArray() : [-1500, 200, 100]} />)}
+      {isNight && (
+        <Stars
+          radius={1500}
+          depth={50}
+          count={5000}
+          factor={100}
+          saturation={0}
+          fade
+        />
+      )}
+      {/* {isNight && (
+        <mesh ref={moonRef}>
+          <sphereGeometry args={[5, 32, 32]} />
+          <meshStandardMaterial map={moonTexture} />
+        </mesh>
+      )} */}
       <Ground />
       <group position={[150, 0, -80]}>
         <CityModel date={date} time={time} showRayVisualization={showRays} />
@@ -63,5 +77,5 @@ export const Scene = () => {
         <CloudLayer count={20} area={500} height={190} />
       </group>
     </>
-  )
-}
+  );
+};

@@ -29,7 +29,7 @@ export const CityModel = ({ date, time, showRayVisualization }) => {
   const [stats, setStats] = useControls(() => ({
     Results: folder({
       'Rooftop Area': { value: '0.00 m²', disabled: true },
-      'Shadow Fraction': { value: '0.00 %', disabled: true },
+      'Region in Shadow': { value: '0.00 %', disabled: true },
       'BIPV Power': { value: '0.00 kW', disabled: true },
       'Average GHI': { value: '0.00 kWh/m²/da', disabled: true },
       'Average DNI': { value: '0.00 kWh/m²/da', disabled: true },
@@ -88,7 +88,7 @@ export const CityModel = ({ date, time, showRayVisualization }) => {
       console.log(bipvPower)
       setStats({
         'Rooftop Area': `${area.toFixed(2)} m²`,
-        'Shadow Fraction': `${typeof bipvPower.shadowFactor === 'number' ? bipvPower.shadowFactor.toFixed(2) : bipvPower.shadowFactor}`,
+        'Region in Shadow': `${typeof bipvPower.shadowFactor === 'number' ? bipvPower.shadowFactor.toFixed(2) : bipvPower.shadowFactor}`,
         'BIPV Power': `${bipvPower.formattedPower}`,
         'Average GHI': `${bipvPower.avgGhi}`,
         'Average DNI': `${bipvPower.avgDni}`,
