@@ -1,26 +1,17 @@
-import './App.css'
-import { Canvas } from '@react-three/fiber'
-import { Scene } from './components/Scene'
-import { Perf } from 'r3f-perf'
-import { folder, useControls } from 'leva'
-
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import "./App.css";
+import { Model } from "./pages/Model";
+import { Landing } from "./pages/Landing";
 
 function App() {
-  const { showStats } = useControls({
-    Debug: folder({
-      showStats: {
-        value: false
-      }
-    })
-  })
   return (
-    <>
-      <Canvas camera={{ far: 5000, position: [-500, 50, -50] }} shadows gl={{ antialias: false, powerPreference: "high-performance", alpha: false }} >
-        {showStats ? <Perf position='top-left' /> : null}
-        <Scene />
-      </Canvas>
-    </>
-  )
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/model" element={<Model />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
