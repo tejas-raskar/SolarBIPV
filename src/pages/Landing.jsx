@@ -9,7 +9,7 @@ export const Landing = () => {
         transition={{ duration: 1, delay: 4 }}
         className="absolute flex justify-end w-full z-10"
       >
-        <div className="flex justify-between gap-4 pr-10 mt-5 text-[#291C18] underline font-poppins text-base md:text-lg">
+        <div className="flex justify-between gap-4 pr-10 mt-5 text-[#291C18] underline font-poppins text-base">
           <a
             href="https://github.com/tejas-raskar/solarbipv"
             target="_blank"
