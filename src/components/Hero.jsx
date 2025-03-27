@@ -15,7 +15,7 @@ export const Hero = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 2, delay: 3 }}
-          className="mx-auto font-poppins text-[5rem] font-semibold text-[#291C18]"
+          className="mx-auto font-poppins text-[4rem] md:text-[5rem] font-semibold text-[#291C18]"
         >
           SolarBIPV
         </motion.div>
@@ -23,7 +23,7 @@ export const Hero = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 4 }}
-          className="max-w-lg -mt-2 text-[#291C18] text-balance text-center text-base mx-auto font-poppins"
+          className="max-w-lg -mt-4 text-[#291C18] text-balance text-center text-base md:text-lg mx-auto font-poppins"
         >
           Find out where to install solar panels for maximum energy generation
         </motion.div>
