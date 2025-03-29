@@ -17,7 +17,9 @@ export const Landing = () => {
           >
             Github
           </a>
-          <a className="hover:text-[#EBDB88] pt-2">How it works?</a>
+          <a href="/how-it-works" className="hover:text-[#EBDB88] pt-2">
+            How it works?
+          </a>
           <a
             href="/model"
             className="bg-[#EBDB88] no-underline p-2 px-4 rounded-full font-semibold"
